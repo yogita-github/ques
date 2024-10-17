@@ -1,0 +1,602 @@
+mysql> create table t1(c1 int, c2 varchar(2));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> insert into t1 values(1,'abc');
+ERROR 1406 (22001): Data too long for column 'c2' at row 1
+mysql> insert into t1 values(1);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql> insert into t1 values(1,2,3);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql>
+mysql>
+mysql> insert into t1 values(1,2);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> desc t1;
++-------+------------+------+-----+---------+-------+
+| Field | Type       | Null | Key | Default | Extra |
++-------+------------+------+-----+---------+-------+
+| c1    | int        | YES  |     | NULL    |       |
+| c2    | varchar(2) | YES  |     | NULL    |       |
++-------+------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> select * from t1;
++------+------+
+| c1   | c2   |
++------+------+
+|    1 | 2    |
++------+------+
+1 row in set (0.00 sec)
+
+mysql> insert into t1(c1) values(-1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from t1;
++------+------+
+| c1   | c2   |
++------+------+
+|    1 | 2    |
+|   -1 | NULL |
++------+------+
+2 rows in set (0.00 sec)
+
+mysql> insert into t1(c1) values(-2, 100);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql> insert into t1(c1, c2) values(-2);
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql> select * from t1;
++------+------+
+| c1   | c2   |
++------+------+
+|    1 | 2    |
+|   -1 | NULL |
++------+------+
+2 rows in set (0.00 sec)
+
+mysql> insert into t1 values (3,'saleel'), (4,'ruhan'), (5,'sharmin');
+ERROR 1406 (22001): Data too long for column 'c2' at row 1
+mysql> drop table t1;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> create table t1(c1 int, c2 varchar(20));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> insert into t1 values (1,'saleel'), (2,'ruhan'), (3,'sharmin');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * t1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 't1' at line 1
+mysql> select * from t1;
++------+---------+
+| c1   | c2      |
++------+---------+
+|    1 | saleel  |
+|    2 | ruhan   |
+|    3 | sharmin |
++------+---------+
+3 rows in set (0.00 sec)
+
+mysql> insert into t1 values row(4,'saleel'), row(5,'ruhan'), row(6,'sharmin');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from t1;
++------+---------+
+| c1   | c2      |
++------+---------+
+|    1 | saleel  |
+|    2 | ruhan   |
+|    3 | sharmin |
+|    4 | saleel  |
+|    5 | ruhan   |
+|    6 | sharmin |
++------+---------+
+6 rows in set (0.00 sec)
+
+mysql> insert into t1 set c2=''kaushal', c1=100;
+    '> ;^C
+mysql> insert into t1 set c2='kaushal', c1=100;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from t1;
++------+---------+
+| c1   | c2      |
++------+---------+
+|    1 | saleel  |
+|    2 | ruhan   |
+|    3 | sharmin |
+|    4 | saleel  |
+|    5 | ruhan   |
+|    6 | sharmin |
+|  100 | kaushal |
++------+---------+
+7 rows in set (0.00 sec)
+
+mysql> insert into t1 set c2=''kaushal', c1=100, c3=100;
+    '> ^C
+mysql> insert into t1 set c2='kaushal', c1=100, c3=100;
+ERROR 1054 (42S22): Unknown column 'c3' in 'field list'
+mysql> set @x = 1000;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select @x;
++------+
+| @x   |
++------+
+| 1000 |
++------+
+1 row in set (0.01 sec)
+
+mysql> set @y := 'manager';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> set @z = 2000;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @x + @z;
++---------+
+| @x + @z |
++---------+
+|    3000 |
++---------+
+1 row in set (0.01 sec)
+
+mysql> select 1000+ 2000;
++------------+
+| 1000+ 2000 |
++------------+
+|       3000 |
++------------+
+1 row in set (0.01 sec)
+
+mysql>
+mysql>
+mysql>
+mysql>
+mysql> create table t2(c1 int, c2 int default (c1*2), c3 int generated always as (c1*2));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc t2;
++-------+------+------+-----+------------+-------------------+
+| Field | Type | Null | Key | Default    | Extra             |
++-------+------+------+-----+------------+-------------------+
+| c1    | int  | YES  |     | NULL       |                   |
+| c2    | int  | YES  |     | (`c1` * 2) | DEFAULT_GENERATED |
+| c3    | int  | YES  |     | NULL       | VIRTUAL GENERATED |
++-------+------+------+-----+------------+-------------------+
+3 rows in set (0.00 sec)
+
+mysql> insert into t2 values(2,1000, 1000);
+ERROR 3105 (HY000): The value specified for generated column 'c3' in table 't2' is not allowed.
+mysql> insert into t2 values(2, default, default);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from t2;
++------+------+------+
+| c1   | c2   | c3   |
++------+------+------+
+|    2 |    4 |    4 |
++------+------+------+
+1 row in set (0.00 sec)
+
+mysql> insert into t2 values(4, null, default);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into t2 values(6, 10001, default);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> set variable like 'auto%';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'like 'auto%'' at line 1
+mysql> set variables like 'auto%';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'like 'auto%'' at line 1
+mysql> set variables like 'auto%';
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'like 'auto%'' at line 1
+mysql> show variables like 'auto%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| auto_generate_certs      | ON    |
+| auto_increment_increment | 1     |
+| auto_increment_offset    | 1     |
+| autocommit               | ON    |
+| automatic_sp_privileges  | ON    |
++--------------------------+-------+
+5 rows in set (0.02 sec)
+
+mysql> set autocommit=off;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables like 'auto%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| auto_generate_certs      | ON    |
+| auto_increment_increment | 1     |
+| auto_increment_offset    | 1     |
+| autocommit               | OFF   |
+| automatic_sp_privileges  | ON    |
++--------------------------+-------+
+5 rows in set (0.00 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> update table t2 set c1=20;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'table t2 set c1=20' at line 1
+mysql> update t2 set c1=20;
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|   20 |     4 |   40 |
+|   20 |  NULL |   40 |
+|   20 | 10001 |   40 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> update t2 set c1=20 where c1=2;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|   20 |     4 |   40 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> update t2 set c2=default;
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql> select * from t2;
++------+------+------+
+| c1   | c2   | c3   |
++------+------+------+
+|   20 |   40 |   40 |
+|    4 |    8 |    8 |
+|    6 |   12 |   12 |
++------+------+------+
+3 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> create table users(uid int, uname varchar(10), pwd varchar(10) invisible);
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> desc users;
++-------+-------------+------+-----+---------+-----------+
+| Field | Type        | Null | Key | Default | Extra     |
++-------+-------------+------+-----+---------+-----------+
+| uid   | int         | YES  |     | NULL    |           |
+| uname | varchar(10) | YES  |     | NULL    |           |
+| pwd   | varchar(10) | YES  |     | NULL    | INVISIBLE |
++-------+-------------+------+-----+---------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> insert into users values(1,'saleel','sony'),(2,'ruhan', 'ru3939'), (3,'sharmin','rinki')
+;
+ERROR 1136 (21S01): Column count doesn't match value count at row 1
+mysql> insert into users(uid,uname,pwd) values(1,'saleel','sony'),(2,'ruhan', 'ru3939'), (3,'sh
+armin','rinki');
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from users;
++------+---------+
+| uid  | uname   |
++------+---------+
+|    1 | saleel  |
+|    2 | ruhan   |
+|    3 | sharmin |
++------+---------+
+3 rows in set (0.00 sec)
+
+mysql> select uid,uname,pwd from users;
++------+---------+--------+
+| uid  | uname   | pwd    |
++------+---------+--------+
+|    1 | saleel  | sony   |
+|    2 | ruhan   | ru3939 |
+|    3 | sharmin | rinki  |
++------+---------+--------+
+3 rows in set (0.00 sec)
+
+mysql> create table users1(uid int, uname varchar(10), pwd varbinary(10) invisible);
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc users1`;
+    `> ^C
+mysql> desc users1;
++-------+---------------+------+-----+---------+-----------+
+| Field | Type          | Null | Key | Default | Extra     |
++-------+---------------+------+-----+---------+-----------+
+| uid   | int           | YES  |     | NULL    |           |
+| uname | varchar(10)   | YES  |     | NULL    |           |
+| pwd   | varbinary(10) | YES  |     | NULL    | INVISIBLE |
++-------+---------------+------+-----+---------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> insert into users1(uid,uname,pwd) values(100, 'saleel', 'sony');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from users1;
++------+--------+
+| uid  | uname  |
++------+--------+
+|  100 | saleel |
++------+--------+
+1 row in set (0.00 sec)
+
+mysql> select uid,uname,pwd from users1;
++------+--------+------------+
+| uid  | uname  | pwd        |
++------+--------+------------+
+|  100 | saleel | 0x736F6E79 |
++------+--------+------------+
+1 row in set (0.00 sec)
+
+mysql> select * from users1;
++------+--------+
+| uid  | uname  |
++------+--------+
+|  100 | saleel |
++------+--------+
+1 row in set (0.00 sec)
+
+mysql> select uid,uname,pwd from users1;
++------+--------+------------+
+| uid  | uname  | pwd        |
++------+--------+------------+
+|  100 | saleel | 0x736F6E79 |
++------+--------+------------+
+1 row in set (0.00 sec)
+
+mysql> select uid,uname, cast(pwd as char) from users1;
++------+--------+-------------------+
+| uid  | uname  | cast(pwd as char) |
++------+--------+-------------------+
+|  100 | saleel | sony              |
++------+--------+-------------------+
+1 row in set (0.01 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> delete from t2;
+Query OK, 3 rows affected (0.00 sec)
+
+mysql> select * from t2;
+Empty set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from t2 where c1=2;
++------+------+------+
+| c1   | c2   | c3   |
++------+------+------+
+|    2 |    4 |    4 |
++------+------+------+
+1 row in set (0.00 sec)
+
+mysql> delete from t2 where c1=2;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+2 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from t2;
++------+-------+------+
+| c1   | c2    | c3   |
++------+-------+------+
+|    2 |     4 |    4 |
+|    4 |  NULL |    8 |
+|    6 | 10001 |   12 |
++------+-------+------+
+3 rows in set (0.00 sec)
+
+mysql> update t2 set c2=null where c1=6;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from t2;
++------+------+------+
+| c1   | c2   | c3   |
++------+------+------+
+|    2 |    4 |    4 |
+|    4 | NULL |    8 |
+|    6 | NULL |   12 |
++------+------+------+
+3 rows in set (0.00 sec)
+
+mysql> create table a(id int, ename varchar(10), city varchar(10)) engine=csv;
+ERROR 1178 (42000): The storage engine for the table doesn't support nullable columns
+mysql> create table a(id int not null, ename varchar(10) not null, city varchar(10) not null) e
+ngine=csv;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> desc a;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | int         | NO   |     | NULL    |       |
+| ename | varchar(10) | NO   |     | NULL    |       |
+| city  | varchar(10) | NO   |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into a values(1,'saleel','baroda'), (2,'pankaj','surat'), (3,'rajan','bharuch');
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> select * from a;
++----+--------+---------+
+| id | ename  | city    |
++----+--------+---------+
+|  1 | saleel | baroda  |
+|  2 | pankaj | surat   |
+|  3 | rajan  | bharuch |
++----+--------+---------+
+3 rows in set (0.00 sec)
+
+mysql> create table b(cid int, cname varchar(10), ccity varchar(10));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> desc b;
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| cid   | int         | YES  |     | NULL    |       |
+| cname | varchar(10) | YES  |     | NULL    |       |
+| ccity | varchar(10) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> load data infile "C:/ProgramData/MySQL/MySQL Server 8.1/Data/z1/a.CSV" into table b fiel
+ds terminated by ',' lines terminated by '\n';
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from b;
++------+----------+-----------+
+| cid  | cname    | ccity     |
++------+----------+-----------+
+|    1 | "saleel" | "baroda"  |
+|    2 | "pankaj" | "surat"   |
+|    3 | "rajan"  | "bharuch" |
++------+----------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from b;
+Empty set (0.00 sec)
+
+mysql> load data infile "C:/ProgramData/MySQL/MySQL Server 8.1/Data/z1/a.CSV" into table b fields terminated by ',' lines terminated by '\n';
+Query OK, 4 rows affected (0.00 sec)
+Records: 4  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from b;
++------+---------+---------+
+| cid  | cname   | ccity   |
++------+---------+---------+
+|    1 | saleel  | baroda  |
+|    2 | pankaj  | surat   |
+|    3 | rajan"  | bharuch |
+|    4 | bandish | mumbai  |
++------+---------+---------+
+4 rows in set (0.00 sec)
+
+mysql> select * from b;
++------+---------+---------+
+| cid  | cname   | ccity   |
++------+---------+---------+
+|    1 | saleel  | baroda  |
+|    2 | pankaj  | surat   |
+|    3 | rajan"  | bharuch |
+|    4 | bandish | mumbai  |
++------+---------+---------+
+4 rows in set (0.00 sec)
+
+mysql> alter table b add column salary int;
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc t2;
++-------+------+------+-----+------------+-------------------+
+| Field | Type | Null | Key | Default    | Extra             |
++-------+------+------+-----+------------+-------------------+
+| c1    | int  | YES  |     | NULL       |                   |
+| c2    | int  | YES  |     | (`c1` * 2) | DEFAULT_GENERATED |
+| c3    | int  | YES  |     | NULL       | VIRTUAL GENERATED |
++-------+------+------+-----+------------+-------------------+
+3 rows in set (0.00 sec)
+
+mysql> desc b;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| cid    | int         | YES  |     | NULL    |       |
+| cname  | varchar(10) | YES  |     | NULL    |       |
+| ccity  | varchar(10) | YES  |     | NULL    |       |
+| salary | int         | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql>
+
+
+
+
+
+
+
+
+
